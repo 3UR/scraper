@@ -1,26 +1,68 @@
-import contextlib
 import os
 import time
-from discord.ext import commands
+import discord
+import aiohttp
+import aiofiles
 from discord_webhook import DiscordWebhook
 
 
-class ConsoleColors:
-    MAGENTA = '\x1b[35m'
-    RED = '\x1b[31m'
-    RESET = '\x1b[0m'
+class ConsoleUtils:
+    """
+    a class that contains a bunch of console utils such as colors, title and clear console
+    
+    TODO: move this to it's own module.
+    """
 
-# Clear console and set window title
-os.system('cls & title Finessed')
+    def __init__(self) -> None:
+        pass
 
-# Create a client for self-botting
-client = commands.Bot(command_prefix="--", self_bot=True, help_command=None)
+    class ConsoleColors:
+        """
+        a class that contains a bunch of console colors.
+        """
+        RESET = '\033[0m'
+        BLACK = '\033[30m'
+        RED = '\033[31m'
+        GREEN = '\033[32m'
+        YELLOW = '\033[33m'
+        BLUE = '\033[34m'
+        MAGENTA = '\033[35m'
+        CYAN = '\033[36m'
+        WHITE = '\033[37m'
+        BOLD = '\033[1m'
+        UNDERLINE = '\033[4m'
+    
+    def clear_console(self) -> None:
+        """
+        clears the console.
+        """
+        if os.name in ('nt', 'dos', 'ce', 'win32', 'win64'):
+            os.system('cls')
+        elif os.name in ('linux', 'osx', 'posix'):
+            os.system('clear')
+        else:
+            print("Your operating system is not supported.")
 
-# Prompt user for Discord token
-token = input("Enter Token: ")
+    def set_console_title(self, title: str) -> None:
+        """
+        sets the console title.
+        """
+        if os.name in ('nt', 'dos', 'ce', 'win32', 'win64'):
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleTitleW(title)
+        elif os.name in ('linux', 'osx', 'posix'):
+            os.system(f'echo -ne "\033]0;{title}\007"')
+        else:
+            print("Your operating system is not supported.")
 
-# List of image and video file extensions to look for
-image_types = ["png", "jpeg", "gif", "jpg", "mp4", "mov", "webm", "gifv"]
+ConsoleUtils = ConsoleUtils()
+ConsoleColors = ConsoleUtils.ConsoleColors
+
+# Set console title
+ConsoleUtils.set_console_title("discord img scraper | by @obstructive")
+ConsoleUtils.clear_console()
+
+client = discord.Client()
 
 # Scrape images from a Discord channel's chat history
 async def scrape_channel():
@@ -29,16 +71,15 @@ async def scrape_channel():
     async for message in channel.history(limit=None):
         if message.attachments:
             for attachment in message.attachments:
-                if any(attachment.filename.lower().endswith(image_type) for image_type in image_types):
+                if attachment.url.endswith(('.png', '.jpg', '.jpeg', '.gif', '.mp4', '.webm', '.gifv', '.mp4v', '.mov', '.avi', '.wmv', '.flv', '.mkv', '.webp')):
                     # Write image URL to file
                     with open("images.txt", "a", encoding="utf-8") as f:
                         f.write(attachment.url + '\n')
                     # Print image URL to console
-                    print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {attachment.url}")
+                    print(f"{ConsoleUtils.ConsoleColors.MAGENTA}[{ConsoleUtils.ConsoleColors.RESET}~{ConsoleUtils.ConsoleColors.MAGENTA}]{ConsoleUtils.ConsoleColors.RESET} {attachment.url}")
                 else:
-                    # Print message skip message to console
-                    print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}] Message Not An Image | Skipping {ConsoleColors.RESET}")
-# Send images to a Discord channel
+                    pass
+                # Send images to a Discord channel
 async def send_to_channel():
     channel_id = input(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Enter channel id: ")
     channel = await client.fetch_channel(channel_id)
@@ -53,15 +94,19 @@ async def send_to_webhook():
     webhook_url = input(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Enter Webhook Url: ")
     with open("images.txt", "r") as f:
         for line in f:
-            # Print image filename to console
-            print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {line.strip()}")
-            # Send image to webhook
-            webhook = DiscordWebhook(url=webhook_url, content=line.strip(), rate_limit_retry=True)
-            response = webhook.execute()
-            print(response)
-###################################################
-os.system('cls')
-
+            # download image, send to webhook, delete image
+            async with aiohttp.ClientSession() as session:
+                async with session.get(line.strip()) as r:
+                    print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {line.strip()}")
+                    if r.status == 200:
+                        f = await aiofiles.open('temp.jpg', mode='wb')
+                        await f.write(await r.read())
+                        await f.close()
+                        webhook = DiscordWebhook(url=webhook_url, rate_limit_retry=True)
+                        with open("temp.jpg", "rb") as f:
+                            webhook.add_file(file=f.read(), filename='image.jpg')
+                        response = webhook.execute()
+                        os.remove("temp.jpg") 
 
 async def menu():
     with open('images.txt') as f:
