@@ -15,7 +15,7 @@ class ConsoleUtils:
     """
 
     def __init__(self) -> None:
-        pass
+        raise NotImplementedError()
 
     class ConsoleColors:
         """
