@@ -18,9 +18,7 @@ class ConsoleUtils:
         raise NotImplementedError()
 
     class ConsoleColors:
-        """
-        a class that contains a bunch of console colors.
-        """
+        """a class that contains a bunch of console colors."""
         RESET = '\033[0m'
         BLACK = '\033[30m'
         RED = '\033[31m'
@@ -35,9 +33,7 @@ class ConsoleUtils:
     
     @staticmethod
     def clear_console() -> None:
-        """
-        clears the console.
-        """
+        """clears the console."""
         if os.name in ('nt', 'dos', 'ce', 'win32', 'win64'):
             os.system('cls')
         elif os.name in ('linux', 'osx', 'posix'):
@@ -47,9 +43,7 @@ class ConsoleUtils:
 
     @staticmethod
     def set_console_title(title: str) -> None:
-        """
-        sets the console title.
-        """
+        """sets the console title."""
         if os.name in ('nt', 'dos', 'ce', 'win32', 'win64'):
             import ctypes
             ctypes.windll.kernel32.SetConsoleTitleW(title)
