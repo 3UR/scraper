@@ -54,7 +54,7 @@ class ConsoleUtils:
             os.system(f'echo -ne "\033]0;{title}\007"')
         else:
             print('Your operating system is not supported.')
-    
+
     @staticmethod
     def clear_file(file: str) -> None:
         """clears the file."""
@@ -128,7 +128,9 @@ async def send_to_channel():
                     await f.close()
                     try:
                         await channel.send(
-                            file=discord.File(f'file.{format}', filename=f'file.{format}')
+                            file=discord.File(
+                                f'file.{format}', filename=f'file.{format}'
+                            )
                         )
                     except discord.errors.HTTPException:
                         pass
@@ -137,6 +139,7 @@ async def send_to_channel():
                         f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {line.strip()}'
                     )
                     ConsoleUtils.clear_file('images.txt')
+
 
 # Send images to a webhook
 async def send_to_webhook():
@@ -168,7 +171,7 @@ async def send_to_webhook():
                     webhook.add_file(
                         filename=f'{random}.{format}', file=file.read()
                     )
-                    response = webhook.execute()
+                    webhook.execute()
                     time.sleep(3)
                     file.close()
                     os.remove(f'file.{format}')
@@ -180,7 +183,7 @@ async def send_to_webhook():
 
 async def menu():
     with open('images.txt') as f:
-        num_lines = len(f.readlines())
+        len(f.readlines())
     os.system('cls')
     print(
         """\x1b[38;5;199m
