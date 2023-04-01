@@ -114,7 +114,7 @@ async def menu():
     with open('images.txt') as f:
         num_lines = len(f.readlines())
     os.system('cls')
-    print(f'''\x1b[38;5;199m
+    print('''\x1b[38;5;199m
                  ╔═╗╦╔╗╔╔═╗╔═╗╔═╗╔═╗╔╦╗
                  ╠╣ ║║║║║╣ ╚═╗╚═╗║╣  ║║
                  ╚  ╩╝╚╝╚═╝╚═╝╚═╝╚═╝═╩╝
@@ -129,7 +129,7 @@ async def menu():
   {{C.RESET}}''')
     while True:
         choice = input(
-            f"\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Choice{{C.RESET}}: \x1b[0m")
+            "\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Choice{{C.RESET}}: \x1b[0m")
         if choice == "1":
             await scrape_channel()
             print("\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Scraped Avatars/GIFs")
