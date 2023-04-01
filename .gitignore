@@ -2,3 +2,4 @@ images.txt
 venv/
 .env
 token.txt
+file.*
