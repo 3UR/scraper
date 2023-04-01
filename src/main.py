@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import discord
 import aiohttp
@@ -158,7 +159,7 @@ async def menu():
             print("\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Exiting...")
             time.sleep(1)
             os.system('cls')
-            exit()
+            sys.exit()
         else:
             print("\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Invalid Choice")
             time.sleep(1)
