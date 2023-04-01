@@ -5,7 +5,7 @@ import discord
 import aiohttp
 import aiofiles
 from discord_webhook import DiscordWebhook
-
+import random
 
 class ConsoleUtils:
     """
@@ -15,6 +15,7 @@ class ConsoleUtils:
     """
 
     def __init__(self) -> None:
+        # raise NotImplementedError()
         pass
 
     class ConsoleColors:
@@ -59,12 +60,26 @@ class ConsoleUtils:
         """clears the file."""
         with open(file, 'r+') as f:
             f.truncate(0)
+    
+    @staticmethod
+    def delete_files(confirm: bool) -> None:
+        """
+        delete a subset of files
+
+        delete files that start with file
+        """
+        for file in os.listdir():
+            if file.startswith('file'):
+                os.remove(file)
+        
 
 
 ConsoleUtils = ConsoleUtils()
 ConsoleColors = ConsoleUtils.ConsoleColors
 
 # Set console title
+ConsoleUtils.clear_file('images.txt')
+ConsoleUtils.delete_files(confirm=True)
 ConsoleUtils.set_console_title('discord img scraper | by @obstructive')
 ConsoleUtils.clear_console()
 token = input(
@@ -108,6 +123,13 @@ async def scrape_channel():
                     )
                 # Send images to a Discord channel
 
+                # open the file again, randomize lines and close the file
+                with open('images.txt', 'r', encoding='UTF-8') as f:
+                    lines = f.readlines()
+                    random.shuffle(lines)
+                with open('images.txt', 'w', encoding='UTF-8') as f:
+                    f.writelines(lines)
+
 
 async def send_to_channel():
     channel_id = input(
@@ -126,9 +148,10 @@ async def send_to_channel():
                     await f.write(await r.read())
                     await f.close()
                     try:
+                        filename = os.urandom(16).hex()
                         await channel.send(
                             file=discord.File(
-                                f'file.{format}', filename=f'file.{format}'
+                                f'file.{format}', filename=f'{filename}.{format}'
                             )
                         )
                     except discord.errors.HTTPException:
