@@ -97,18 +97,17 @@ async def send_to_webhook():
     with open("images.txt", "r") as f:
         for line in f:
             # download image, send to webhook, delete image
-            async with aiohttp.ClientSession() as session:
-                async with session.get(line.strip()) as r:
-                    print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {line.strip()}")
-                    if r.status == 200:
-                        f = await aiofiles.open('temp.jpg', mode='wb')
-                        await f.write(await r.read())
-                        await f.close()
-                        webhook = DiscordWebhook(url=webhook_url, rate_limit_retry=True)
-                        with open("temp.jpg", "rb") as f:
-                            webhook.add_file(file=f.read(), filename='image.jpg')
-                        response = webhook.execute()
-                        os.remove("temp.jpg") 
+            async with aiohttp.ClientSession() as session, session.get(line.strip()) as r:
+                print(f"{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} {line.strip()}")
+                if r.status == 200:
+                    f = await aiofiles.open('temp.jpg', mode='wb')
+                    await f.write(await r.read())
+                    await f.close()
+                    webhook = DiscordWebhook(url=webhook_url, rate_limit_retry=True)
+                    with open("temp.jpg", "rb") as f:
+                        webhook.add_file(file=f.read(), filename='image.jpg')
+                    response = webhook.execute()
+                    os.remove("temp.jpg") 
 
 async def menu():
     with open('images.txt') as f:
