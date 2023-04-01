@@ -32,7 +32,8 @@ class ConsoleUtils:
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
     
-    def clear_console(self) -> None:
+    @staticmethod
+    def clear_console() -> None:
         """
         clears the console.
         """
@@ -43,7 +44,8 @@ class ConsoleUtils:
         else:
             print("Your operating system is not supported.")
 
-    def set_console_title(self, title: str) -> None:
+    @staticmethod
+    def set_console_title(title: str) -> None:
         """
         sets the console title.
         """
