@@ -10,7 +10,7 @@ from discord_webhook import DiscordWebhook
 class ConsoleUtils:
     """
     a class that contains a bunch of console utils such as colors, title and clear console
-    
+
     TODO: move this to it's own module.
     """
 
@@ -30,7 +30,7 @@ class ConsoleUtils:
         WHITE = '\033[37m'
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
-    
+
     @staticmethod
     def clear_console() -> None:
         """clears the console."""
