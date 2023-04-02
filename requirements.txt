@@ -1,0 +1,3 @@
+git+https://github.com/dolfies/discord.py-self@4fe736b00be90af98e3f1b5d8733ab543cb19fd9#egg=selfcord.py[speed]
+aiofiles
+discord_webhook
