@@ -7,16 +7,18 @@ import aiofiles
 import contextlib
 from discord_webhook import DiscordWebhook
 import random
+import asyncio
+
 
 class ConsoleUtils:
     """
     a class that contains a bunch of console utils such as colors, title and clear console
 
-    TODO: #9 move this to it's own module.
+    TODO: 
     """
 
     def __init__(self) -> None:
-        # raise NotImplementedError()
+        
         pass
 
     class ConsoleColors:
@@ -61,7 +63,7 @@ class ConsoleUtils:
         """clears the file."""
         with open(file, 'r+') as f:
             f.truncate(0)
-    
+
     @staticmethod
     def delete_files(confirm: bool) -> None:
         """
@@ -72,13 +74,12 @@ class ConsoleUtils:
         for file in os.listdir():
             if file.startswith('file'):
                 os.remove(file)
-        
 
 
 ConsoleUtils = ConsoleUtils()
 ConsoleColors = ConsoleUtils.ConsoleColors
 
-# Set console title
+
 ConsoleUtils.clear_file('images.txt')
 ConsoleUtils.delete_files(confirm=True)
 ConsoleUtils.set_console_title('discord img scraper | by @obstructive')
@@ -88,7 +89,7 @@ token = input(
 )
 client = discord.Client()
 
-# Scrape images from a Discord channel's chat history
+
 async def scrape_channel():
     channel_id = input(
         f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Enter channel id: '
@@ -115,16 +116,16 @@ async def scrape_channel():
                         '.webp',
                     )
                 ):
-                    # Write image URL to file
+                    
                     with open('images.txt', 'a', encoding='utf-8') as f:
                         f.write(attachment.url + '\n')
-                    # Print image URL to console
+                    
                     print(
                         f'{ConsoleUtils.ConsoleColors.MAGENTA}[{ConsoleUtils.ConsoleColors.RESET}~{ConsoleUtils.ConsoleColors.MAGENTA}]{ConsoleUtils.ConsoleColors.RESET} {attachment.url}'
                     )
-                # Send images to a Discord channel
+                
 
-                # open the file again, randomize lines and close the file
+                
                 with open('images.txt', 'r', encoding='UTF-8') as f:
                     lines = f.readlines()
                     random.shuffle(lines)
@@ -139,10 +140,11 @@ async def send_to_channel():
     channel = await client.fetch_channel(channel_id)
     with open('images.txt', 'r') as f:
         for line in f:
-            # download image, send to channel, delete image and remove line from file, make htis work with any file format
-            async with (aiohttp.ClientSession() as session, session.get(
-                            line.strip()
-                        ) as r):
+            
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(line.strip()) as r,
+            ):
                 if r.status == 200:
                     format = line.strip().split('.')[-1]
                     f = await aiofiles.open(f'file.{format}', mode='wb')
@@ -152,7 +154,8 @@ async def send_to_channel():
                         filename = os.urandom(16).hex()
                         await channel.send(
                             file=discord.File(
-                                f'file.{format}', filename=f'{filename}.{format}'
+                                f'file.{format}',
+                                filename=f'{filename}.{format}',
                             )
                         )
                     os.remove(f'file.{format}')
@@ -162,14 +165,14 @@ async def send_to_channel():
                     ConsoleUtils.clear_file('images.txt')
 
 
-# Send images to a webhook
+
 async def send_to_webhook():
     webhook_url = input(
         f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Enter Webhook Url: '
     )
     with open('images.txt', 'r', encoding='UTF-8') as f:
         for line in f:
-            # download image, send to webhook, delete image and remove line from file, make htis work with any file format
+            
             async with aiohttp.ClientSession() as session, session.get(
                 line.strip()
             ) as r:
@@ -207,50 +210,45 @@ async def menu():
         len(f.readlines())
     ConsoleUtils.clear_console()
     print(
-        """\x1b[38;5;199m
-\x1b[38;5;199m       ╔═════════════════════════════════════════╗
-       ║\x1b[38;5;199m[{{C.RESET}}1\x1b[38;5;199m] {{C.RESET}}Scrape Files\x1b[38;5;199m                     ║
-\x1b[38;5;199m       ║\x1b[38;5;199m[{{C.RESET}}2\x1b[38;5;199m] {{C.RESET}}Upload to Server\x1b[38;5;199m                       ║
-       ║\x1b[38;5;199m[{{C.RESET}}3\x1b[38;5;199m] {{C.RESET}}Send to Webhook (May be Rate-Limited)\x1b[38;5;199m   ║
-       ║\x1b[38;5;199m[{{C.RESET}}4\x1b[38;5;199m] {{C.RESET}}Credits\x1b[38;5;199m                              ║
-       ║\x1b[38;5;199m[{{C.RESET}}5\x1b[38;5;199m] {{C.RESET}}Exit\x1b[38;5;199m                                 ║
-\x1b[38;5;199m       ╚═════════════════════════════════════════╝
-
-  {{C.RESET}}"""
+        
+        f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} 1. Scrape Channel'
+        f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} 2. Send to Channel'
+        f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} 3. Send to Webhook'
+        f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} 4. Credits'
+        f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} 5. Exit'
     )
     while True:
         choice = input(
-            '\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Choice{{C.RESET}}: \x1b[0m'
+            f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Enter Choice: '
         )
         if choice == '1':
             await scrape_channel()
             print(
-                '\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Scraped Avatars/GIFs'
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Finished Scraping Channel'
             )
             time.sleep(1)
             await menu()
         elif choice == '2':
             await send_to_channel()
             print(
-                '\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Finished Uploading Scraped Avatars/GIFs to Server'
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Finished Sending Scraped Avatars/GIFs to Channel'
             )
             time.sleep(3)
             await menu()
         elif choice == '3':
             await send_to_webhook()
             print(
-                '\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Finished Sending Scraped Avatars/GIFs to Webhook'
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Finished Sending Scraped Avatars/GIFs to Webhook'
             )
             time.sleep(3)
             await menu()
         elif choice == '4':
             print(
-                """\x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Credits: {{C.RESET}}
-                \x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Discord: {{C.RESET}}igna#0002 n igna#0003
-                \x1b[38;5;199m[{{C.RESET}}~\x1b[38;5;199m] {{C.RESET}}Github: {{C.RESET}}@obstructive
-                """
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Credits: '
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Made by: {{C.RESET}}igna'
+                f'{ConsoleColors.MAGENTA}[{ConsoleColors.RESET}~{ConsoleColors.MAGENTA}]{ConsoleColors.RESET} Github: {{C.RESET}}obstructive'
             )
-            time.sleep(3)
+            asyncio.sleep(3)
             await menu()
         elif choice == '5':
             print(
