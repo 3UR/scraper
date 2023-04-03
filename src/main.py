@@ -137,12 +137,11 @@ async def scrape_channel(channel_id):
     """
     channel = await client.fetch_channel(channel_id)
 
-    # Iterate through all messages in the channel
     async for message in channel.history(limit=None):
         if message.attachments:
-            # Check if the message has any attachments
+
             for attachment in message.attachments:
-                # Check if the attachment is an image or video and not from restricted sites
+
                 if (
                     attachment.url.endswith(
                         (
@@ -165,21 +164,18 @@ async def scrape_channel(channel_id):
                     and 'onlyfans' not in attachment.url.lower()
                     and 'brazzers' not in attachment.url.lower()
                 ):
-                    # Save the URL to a text file
+
                     with open('images.txt', 'a', encoding='utf-8') as f:
                         f.write(f'{attachment.url}\n')
 
-                    # Print the URL to the console
                     print(
                         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
                     )
 
-    # Shuffle the lines in the text file
     with open('images.txt', 'r', encoding='UTF-8') as f:
         lines = f.readlines()
         random.shuffle(lines)
 
-    # Write the shuffled lines back to the text file
     with open('images.txt', 'w', encoding='UTF-8') as f:
         f.writelines(lines)
 
@@ -192,29 +188,27 @@ async def send_to_channel(channel_id):
     sends it to the Discord channel and clears the file 'images.txt'.
     """
 
-    # Fetch the channel from the given ID
     channel = await client.fetch_channel(channel_id)
 
-    # Read URLs from 'images.txt' and download each image
     with open('images.txt', 'r') as f:
         async with aiohttp.ClientSession() as session:
             for line in f:
                 async with session.get(line.strip()) as r:
-                    # Check if the request is successful
+
                     if r.status == 200:
-                        # Save the file with a randomly generated name
+
                         file_format = line.strip().split('.')[-1]
                         file_name = os.urandom(16).hex() + '.' + file_format
                         async with aiofiles.open(file_name, mode='wb') as f:
                             await f.write(await r.read())
-                        # Try sending the file to the channel
+
                         try:
                             await channel.send(
                                 file=discord.File(
                                     file_name, filename=file_name
                                 )
                             )
-                            # Remove the file if it has been sent successfully
+
                             os.remove(file_name)
                             print(
                                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line.strip()}'
@@ -222,7 +216,6 @@ async def send_to_channel(channel_id):
                         except discord.errors.HTTPException:
                             pass
 
-    # Clear the file 'images.txt' after all files have been processed
     ConsoleUtils.clear_file('images.txt')
 
 
@@ -234,24 +227,22 @@ async def send_to_webhook():
     sends it to the Discord webhook and clears the file 'images.txt'.
     """
 
-    # Get webhook URL from user input
     webhook_url = input(
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Webhook Url: '
     )
 
-    # Read URLs from 'images.txt' and download each image
     with open('images.txt', 'r', encoding='UTF-8') as f:
         async with aiohttp.ClientSession() as session:
             for line in f:
                 async with session.get(line.strip()) as r:
-                    # Check if the request is successful
+
                     if r.status == 200:
-                        # Save the file with a randomly generated name
+
                         file_format = line.strip().split('.')[-1]
                         file_name = os.urandom(16).hex() + '.' + file_format
                         async with aiofiles.open(file_name, mode='wb') as f:
                             await f.write(await r.read())
-                        # Try sending the file to the webhook
+
                         try:
                             webhook = discord.Webhook.from_url(
                                 webhook_url,
@@ -264,7 +255,7 @@ async def send_to_webhook():
                                     filename=f'{filename}.{file_format}',
                                 )
                             )
-                            # Remove the file if it has been sent successfully
+
                             os.remove(file_name)
                             print(
                                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line.strip()}'
@@ -272,18 +263,16 @@ async def send_to_webhook():
                         except discord.errors.HTTPException:
                             pass
 
-    # Clear the file 'images.txt' after all files have been processed
     ConsoleUtils.clear_file('images.txt')
 
 
 async def menu():
-    # Get the number of lines in the images file
+
     with open('images.txt') as f:
         num_lines = len(f.readlines())
 
     ConsoleUtils.clear_console()
 
-    # Print the menu options
     print(
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 1. Scrape Channel\n'
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 2. Send to Channel\n'
@@ -298,7 +287,7 @@ async def menu():
         )
 
         if choice == '1':
-            # If the user chooses to scrape the channel, call the corresponding function
+
             channel_id = input(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
             )
@@ -319,7 +308,7 @@ async def menu():
             await asyncio.sleep(3)
 
         elif choice == '3':
-            # If the user chooses to send attachments to a webhook, call the corresponding function
+
             channel_id = input(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
             )
@@ -330,7 +319,7 @@ async def menu():
             await asyncio.sleep(3)
 
         elif choice == '4':
-            # If the user chooses to view credits, print the credits message
+
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Credits:\n'
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Made by: {{C.RESET}}igna#0002\n'
@@ -339,7 +328,7 @@ async def menu():
             await asyncio.sleep(3)
 
         elif choice == '5':
-            # If the user chooses to exit, print the exit message and exit the program
+
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Exiting...'
             )
@@ -348,16 +337,14 @@ async def menu():
             sys.exit()
 
         else:
-            # If the user enters an invalid choice, print an error message
+
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Invalid Choice'
             )
             await asyncio.sleep(1)
 
-        # Clear the images file after each choice
         ConsoleUtils.clear_file('images.txt')
 
-        # Call the menu function
         await menu()
 
 
