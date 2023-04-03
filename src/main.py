@@ -187,7 +187,6 @@ async def send_to_channel(channel_id):
     It then downloads each image, saves it to a file with a randomly generated name,
     sends it to the Discord channel and clears the file 'images.txt'.
     """
-
     channel = await client.fetch_channel(channel_id)
 
     with open('images.txt', 'r') as f:
@@ -226,7 +225,6 @@ async def send_to_webhook():
     It then downloads each image, saves it to a file with a randomly generated name,
     sends it to the Discord webhook and clears the file 'images.txt'.
     """
-
     webhook_url = input(
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Webhook Url: '
     )
