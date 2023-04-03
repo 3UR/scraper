@@ -7,8 +7,6 @@ import random
 import asyncio
 from colorama import init, Fore
 
-import os
-
 
 class ConsoleUtils:
     """
