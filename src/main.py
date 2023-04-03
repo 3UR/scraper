@@ -16,7 +16,7 @@ class ConsoleUtils:
     """
 
     def __init__(self) -> None:
-        
+
         pass
     @staticmethod
     def clear_console() -> None:
@@ -97,16 +97,16 @@ async def scrape_channel():
                         '.webp',
                     )
                 ):
-                    
+
                     with open('images.txt', 'a', encoding='utf-8') as f:
                         f.write(f'{attachment.url}\n')
-                    
+
                     print(
                         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
                     )
-                
 
-                
+
+
                 with open('images.txt', 'r', encoding='UTF-8') as f:
                     lines = f.readlines()
                     random.shuffle(lines)
@@ -121,7 +121,7 @@ async def send_to_channel():
     channel = await client.fetch_channel(channel_id)
     with open('images.txt', 'r') as f:
         for line in f:
-            
+
             async with (
                 aiohttp.ClientSession() as session,
                 session.get(line.strip()) as r,
@@ -155,7 +155,7 @@ async def send_to_webhook():
     )
     with open('images.txt', 'r', encoding='UTF-8') as f:
         for line in f:
-            
+
             async with aiohttp.ClientSession() as session, session.get(
                 line.strip()
             ) as r:
@@ -188,7 +188,7 @@ async def menu():
         len(f.readlines())
     ConsoleUtils.clear_console()
     print(
-        
+
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 1. Scrape Channel\n'
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 2. Send to Channel\n'
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 3. Send to Webhook\n'
