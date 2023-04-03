@@ -61,6 +61,7 @@ class ConsoleUtils:
         """
         if os.name in ('nt', 'dos', 'ce', 'win32', 'win64'):
             import ctypes
+
             ctypes.windll.kernel32.SetConsoleTitleW(title)
         elif os.name in ('linux', 'osx', 'posix'):
             os.system(f'echo -ne "\033]0;{title}\007"')
@@ -298,15 +299,20 @@ async def menu():
 
         if choice == '1':
             # If the user chooses to scrape the channel, call the corresponding function
-            await scrape_channel()
+            channel_id = input(
+                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
+            )
+            await scrape_channel(channel_id=channel_id)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Scraping Channel'
             )
             await asyncio.sleep(1)
 
         elif choice == '2':
-            # If the user chooses to send attachments to a channel, call the corresponding function
-            await send_to_channel()
+            channel_id = input(
+                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
+            )
+            await send_to_channel(channel_id=channel_id)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Sending Scraped attachments to Channel'
             )
@@ -314,7 +320,10 @@ async def menu():
 
         elif choice == '3':
             # If the user chooses to send attachments to a webhook, call the corresponding function
-            await send_to_webhook()
+            channel_id = input(
+                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
+            )
+            await send_to_webhook(channel_id=channel_id)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Sending Scraped attachments to Webhook'
             )
