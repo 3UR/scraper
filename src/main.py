@@ -152,16 +152,14 @@ async def scrape_channel(
         '.mov',
     }
 
-    
     async with aiofiles.open(ignored_keywords, 'r', encoding='utf-8') as f:
         ignored_keywords = {
             line.strip().lower() for line in await f.readlines()
-        } 
+        }  # type: ignore
 
-    
     channel = await client.fetch_channel(channel_id)
     async with aiohttp.ClientSession() as session:
-        async for message in channel.history(limit=None): 
+        async for message in channel.history(limit=None):  # type: ignore
             for attachment in message.attachments:
                 url = attachment.url.lower()
                 if url.startswith('https://') and url.endswith(
@@ -181,12 +179,10 @@ async def scrape_channel(
                                     f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {url}'
                                 )
 
-    
     async with aiofiles.open(filename, 'r', encoding='utf-8') as f:
         lines = await f.readlines()
         random.shuffle(lines)
 
-    
     async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
         await f.writelines(lines)
 
@@ -204,13 +200,14 @@ async def scrape_category(category_id: int) -> None:
     category = await __client__.fetch_channel(category_id)
 
     tasks = []
-    for channel in category.channels: 
+    for channel in category.channels:  # type: ignore
         task = asyncio.create_task(
             scrape_channel(__client__, channel.id, 'images.txt', 'ignored.txt')
         )
         tasks.append(task)
 
     await asyncio.gather(*tasks)
+
 
 async def send_to_channel(channel_id: int) -> None:
     """
@@ -222,8 +219,9 @@ async def send_to_channel(channel_id: int) -> None:
     channel = await __client__.fetch_channel(channel_id)
 
     async with aiohttp.ClientSession() as session:
-        async with aiofiles.open('image.txt', 'r', encoding='utf-8') as f:
-            line = (await f.readline()).strip()
+        async with aiofiles.open('images.txt', 'r', encoding='utf-8') as f:
+            for line in await f.readlines():
+                line = line.strip()
             async with session.get(line) as response:
                 if response.status != 200:
                     return
@@ -235,7 +233,9 @@ async def send_to_channel(channel_id: int) -> None:
                     await file.write(await response.read())
 
                 try:
-                    await channel.send(file=discord.File(file_name))
+                    await channel.send(
+                        file=discord.File(file_name)
+                    )   # type: ignore
 
                     os.remove(file_name)
                     print(
@@ -244,9 +244,8 @@ async def send_to_channel(channel_id: int) -> None:
                 except discord.errors.HTTPException:
                     pass
 
-        async with aiofiles.open('image.txt', 'w', encoding='utf-8') as f:
+        async with aiofiles.open('images.txt', 'w', encoding='utf-8') as f:
             await f.truncate(0)
-
 
 
 async def send_to_webhook(webhook_url: str) -> None:
@@ -259,7 +258,7 @@ async def send_to_webhook(webhook_url: str) -> None:
 
     async with aiohttp.ClientSession() as session:
         webhook = discord.Webhook.from_url(
-            webhook_url, adapter=discord.AsyncWebhookAdapter(session) 
+            webhook_url, adapter=discord.AsyncWebhookAdapter(session)
         )
 
         with open('images.txt', 'r', encoding='UTF-8') as f:
@@ -297,10 +296,11 @@ async def menu():
 
     print(
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 1. Scrape Channel\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 2. Send to Channel\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 3. Send to Webhook\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 4. Credits\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 5. Exit'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 2. Scrape Category\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 3. Send to Channel\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 4. Send to Webhook\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 5. Credits\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 6. Exit'
     )
 
     while True:
@@ -327,7 +327,7 @@ async def menu():
             )
             await asyncio.sleep(1)
 
-        elif choice == '2':
+        elif choice == '3':
             channel_id = int(
                 input(
                     f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
@@ -340,7 +340,7 @@ async def menu():
             )
             await asyncio.sleep(3)
 
-        elif choice == '3':
+        elif choice == '4':
 
             webhook_url = input(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Webhook Url: '
@@ -351,7 +351,7 @@ async def menu():
             )
             await asyncio.sleep(3)
 
-        elif choice == '4':
+        elif choice == '2':
             category_id = int(
                 input(
                     f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Category ID: '
@@ -387,8 +387,6 @@ async def menu():
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Invalid Choice'
             )
             await asyncio.sleep(1)
-
-        
 
         await menu()
 
