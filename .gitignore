@@ -2,4 +2,7 @@ images.txt
 venv/
 .env
 token.txt
-file.*
+*.mp4
+*.png
+*.jpeg
+*.jpeg
