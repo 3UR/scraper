@@ -1,5 +1,7 @@
+import hashlib
 import os
 import sys
+from typing import Set
 import selfcord as discord
 import aiohttp
 import aiofiles
@@ -209,43 +211,85 @@ async def scrape_category(category_id: int) -> None:
     await asyncio.gather(*tasks)
 
 
-async def send_to_channel(channel_id: int) -> None:
+async def send_to_channel(channel_id):
     """
-    This function sends a file from a URL to a Discord channel.
-    It takes input for channel ID and reads the URL from a file 'image.txt'.
-    It then downloads the image, saves it to a file with a randomly generated name,
-    sends it to the Discord channel and clears the file 'image.txt'.
+    This function sends files from a list of URLs to a Discord channel.
+    It takes input for channel ID and reads the URLs from a file 'images.txt'.
+    It then downloads each image, saves it to a file with a randomly generated name,
+    sends it to the Discord channel and clears the file 'images.txt'.
     """
+
+    # Fetch the channel from the given ID
     channel = await __client__.fetch_channel(channel_id)
 
-    async with aiohttp.ClientSession() as session:
-        async with aiofiles.open('images.txt', 'r', encoding='utf-8') as f:
-            for line in await f.readlines():
-                line = line.strip()
-            async with session.get(line) as response:
-                if response.status != 200:
-                    return
+    # Read URLs from 'images.txt' and download each image
+    async with aiofiles.open('images.txt', 'r') as f:
+        async with aiohttp.ClientSession() as session:
+            async for line in f:
+                async with session.get(line.strip()) as r:
+                    # Check if the request is successful
+                    if r.status == 200:
+                        # Save the file with a randomly generated name
+                        file_format = line.strip().split('.')[-1]
+                        file_name = os.urandom(16).hex() + '.' + file_format
+                        async with aiofiles.open(file_name, mode='wb') as f:
+                            await f.write(await r.read())
+                        # Try sending the file to the channel
+                        try:
+                            await channel.send(
+                                file=discord.File(
+                                    file_name, filename=file_name
+                                )
+                            )
+                            # Remove the file if it has been sent successfully
+                            os.remove(file_name)
+                            print(
+                                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line.strip()}'
+                            )
+                        except discord.errors.HTTPException:
+                            pass
 
-                file_format = line.split('.')[-1]
-                file_name = os.urandom(16).hex() + '.' + file_format
+    # Clear the file 'images.txt' after all files have been processed
+    async with aiofiles.open('images.txt', 'w'):
+        pass
 
-                async with aiofiles.open(file_name, mode='wb') as file:
-                    await file.write(await response.read())
 
-                try:
-                    await channel.send(
-                        file=discord.File(file_name)
-                    )   # type: ignore
+async def purge_duplicates(channel_id: int) -> None:
+    """
+    This function removes duplicate files from a discord channel and deletes them from the server.
 
-                    os.remove(file_name)
-                    print(
-                        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line}'
-                    )
-                except discord.errors.HTTPException:
-                    pass
+    Args:
+        channel: A TextChannel object representing the channel to be cleaned.
+    """
 
-        async with aiofiles.open('images.txt', 'w', encoding='utf-8') as f:
-            await f.truncate(0)
+    channel = await __client__.fetch_channel(channel_id)
+
+    # Create a set to store the md5 hashes of attachments that have already been processed
+    processed_hashes: Set[str] = set()
+
+    # Iterate over all messages in the channel
+    async for message in channel.history(limit=None):
+        for attachment in message.attachments:
+            # Download the attachment using aiohttp and calculate its md5 hash
+            async with aiohttp.ClientSession() as session:
+                async with session.get(attachment.url) as r:
+                    if r.status == 200:
+                        file = await r.read()
+                        hash = hashlib.md5(file).hexdigest()
+
+                        # If the hash is already in the set of processed hashes, delete the message
+                        if hash in processed_hashes:
+                            await message.delete()
+                            print(
+                                f'{Fore.MAGENTA}[{Fore.RESET}-{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
+                            )
+
+                        # Otherwise, add the hash to the set of processed hashes
+                        else:
+                            print(
+                                f'{Fore.MAGENTA}[{Fore.RESET}+{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
+                            )
+                            processed_hashes.add(hash)
 
 
 async def send_to_webhook(webhook_url: str) -> None:
@@ -299,8 +343,9 @@ async def menu():
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 2. Scrape Category\n'
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 3. Send to Channel\n'
         f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 4. Send to Webhook\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 5. Credits\n'
-        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 6. Exit'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 5. Purge Duplicates\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 6. Credits\n'
+        f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} 7. Exit'
     )
 
     while True:
@@ -364,6 +409,18 @@ async def menu():
             await asyncio.sleep(3)
 
         elif choice == '5':
+            channel_id = int(
+                input(
+                    f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
+                )
+            )
+            await purge_duplicates(channel_id=channel_id)
+            print(
+                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Purging Duplicates'
+            )
+            await asyncio.sleep(3)
+
+        elif choice == '6':
 
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Credits:\n'
@@ -372,7 +429,7 @@ async def menu():
             )
             await asyncio.sleep(3)
 
-        elif choice == '6':
+        elif choice == '7':
 
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Exiting...'
