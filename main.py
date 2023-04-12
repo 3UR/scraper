@@ -5,7 +5,6 @@ from typing import Set
 import discord
 import aiohttp
 import aiofiles
-import random
 import asyncio
 from colorama import init, Fore
 from utils.console import ConsoleUtils
