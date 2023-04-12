@@ -56,22 +56,25 @@ async def scrape_channel(
         async for message in channel.history(limit=None):
             for attachment in message.attachments:
                 url = attachment.url.lower()
-                if url.startswith('https://') and url.endswith(
+                if (
+                    url.startswith('https://')
+                    and url.endswith(
                     tuple(valid_extensions)
+                )
+                    and not any(keyword in url for keyword in ignored_keywords)
                 ):
-                    if not any(keyword in url for keyword in ignored_keywords):
-                        async with session.head(url) as response:
-                            content_type = response.headers.get(
-                                'Content-Type', ''
+                    async with session.head(url) as response:
+                        content_type = response.headers.get(
+                            'Content-Type', ''
+                        )
+                        if content_type.startswith(('image/', 'video/')):
+                            async with aiofiles.open(
+                                filename, 'a', encoding='utf-8'
+                            ) as f:
+                                await f.write(f'{url}\n')
+                            print(
+                                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {url}'
                             )
-                            if content_type.startswith(('image/', 'video/')):
-                                async with aiofiles.open(
-                                    filename, 'a', encoding='utf-8'
-                                ) as f:
-                                    await f.write(f'{url}\n')
-                                print(
-                                    f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {url}'
-                                )
 
 
 
