@@ -74,26 +74,17 @@ async def scrape_channel(
                                 )
 
 
-"""
+
     async with aiofiles.open(filename, 'r', encoding='utf-8') as f:
         lines = await f.readlines()
         random.shuffle(lines)
 
     async with aiofiles.open(filename, 'w', encoding='utf-8') as f:
         await f.writelines(lines)
-"""
+
 
 
 async def scrape_category(category_id: int) -> None:
-    """
-    Scrapes a Discord category for image and video attachments and saves their URLs to a text file.
-
-    Args:
-        category_id (int): The ID of the Discord category to scrape.
-
-    Returns:
-        None
-    """
     category = await client.fetch_channel(category_id)
 
     tasks = []
