@@ -223,31 +223,30 @@ async def send_to_channel(channel_id):
     channel = await __client__.fetch_channel(channel_id)
 
     # Read URLs from 'images.txt' and download each image
-    async with aiofiles.open('images.txt', 'r') as f:
-        async with aiohttp.ClientSession() as session:
-            async for line in f:
-                async with session.get(line.strip()) as r:
-                    # Check if the request is successful
-                    if r.status == 200:
-                        # Save the file with a randomly generated name
-                        file_format = line.strip().split('.')[-1]
-                        file_name = os.urandom(16).hex() + '.' + file_format
-                        async with aiofiles.open(file_name, mode='wb') as f:
-                            await f.write(await r.read())
-                        # Try sending the file to the channel
-                        try:
-                            await channel.send(
-                                file=discord.File(
-                                    file_name, filename=file_name
-                                )
+    async with aiofiles.open('images.txt', 'r') as f, aiohttp.ClientSession() as session:
+        async for line in f:
+            async with session.get(line.strip()) as r:
+                # Check if the request is successful
+                if r.status == 200:
+                    # Save the file with a randomly generated name
+                    file_format = line.strip().split('.')[-1]
+                    file_name = os.urandom(16).hex() + '.' + file_format
+                    async with aiofiles.open(file_name, mode='wb') as f:
+                        await f.write(await r.read())
+                    # Try sending the file to the channel
+                    try:
+                        await channel.send(
+                            file=discord.File(
+                                file_name, filename=file_name
                             )
-                            # Remove the file if it has been sent successfully
-                            os.remove(file_name)
-                            print(
-                                f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line.strip()}'
-                            )
-                        except discord.errors.HTTPException:
-                            pass
+                        )
+                        # Remove the file if it has been sent successfully
+                        os.remove(file_name)
+                        print(
+                            f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} {line.strip()}'
+                        )
+                    except discord.errors.HTTPException:
+                        pass
 
     # Clear the file 'images.txt' after all files have been processed
     async with aiofiles.open('images.txt', 'w'):
@@ -271,25 +270,24 @@ async def purge_duplicates(channel_id: int) -> None:
     async for message in channel.history(limit=None):
         for attachment in message.attachments:
             # Download the attachment using aiohttp and calculate its md5 hash
-            async with aiohttp.ClientSession() as session:
-                async with session.get(attachment.url) as r:
-                    if r.status == 200:
-                        file = await r.read()
-                        hash = hashlib.md5(file).hexdigest()
+            async with aiohttp.ClientSession() as session, session.get(attachment.url) as r:
+                if r.status == 200:
+                    file = await r.read()
+                    hash = hashlib.md5(file).hexdigest()
 
-                        # If the hash is already in the set of processed hashes, delete the message
-                        if hash in processed_hashes:
-                            await message.delete()
-                            print(
-                                f'{Fore.MAGENTA}[{Fore.RESET}-{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
-                            )
+                    # If the hash is already in the set of processed hashes, delete the message
+                    if hash in processed_hashes:
+                        await message.delete()
+                        print(
+                            f'{Fore.MAGENTA}[{Fore.RESET}-{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
+                        )
 
-                        # Otherwise, add the hash to the set of processed hashes
-                        else:
-                            print(
-                                f'{Fore.MAGENTA}[{Fore.RESET}+{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
-                            )
-                            processed_hashes.add(hash)
+                    # Otherwise, add the hash to the set of processed hashes
+                    else:
+                        print(
+                            f'{Fore.MAGENTA}[{Fore.RESET}+{Fore.MAGENTA}]{Fore.RESET} {attachment.url}'
+                        )
+                        processed_hashes.add(hash)
 
 
 async def send_to_webhook(webhook_url: str) -> None:
