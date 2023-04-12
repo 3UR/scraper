@@ -109,7 +109,6 @@ async def send_to_channel(channel_id):
     It then downloads each image, saves it to a file with a randomly generated name,
     sends it to the Discord channel and clears the file 'data/images.txt'.
     """
-
     # Fetch the channel from the given ID
     channel = await client.fetch_channel(channel_id)
 
@@ -151,7 +150,6 @@ async def purge_duplicates(channel_id: int) -> None:
     Args:
         channel: A TextChannel object representing the channel to be cleaned.
     """
-
     channel = await client.fetch_channel(channel_id)
 
     # Create a set to store the md5 hashes of attachments that have already been processed
