@@ -1,5 +1,6 @@
 import os
 import platform
+import shlex
 
 
 class ConsoleUtils:
@@ -37,7 +38,7 @@ class ConsoleUtils:
 
             ctypes.windll.kernel32.SetConsoleTitleW(title)
         else:
-            os.system(f'echo -ne "\033]0;{title}\007"')
+            os.system(shlex.quote(f'echo -ne "\033]0;{title}\007"'))
 
     @staticmethod
     def clear_file(file_path: str) -> None:
