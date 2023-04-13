@@ -10,6 +10,7 @@ import aiohttp
 from colorama import Fore
 from discord import File, Webhook, errors
 
+
 async def scrape_channel(client, channel_id, filename):
     ignored_keywords = set()
     with open('config.json', 'r') as f:
