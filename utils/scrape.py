@@ -104,11 +104,13 @@ async def purge_duplicates(channel_id: int, client) -> None:
             ) as r:
                 if r.status == 200:
                     file = await r.read()
-                    hash = hashlib.md5(file).hexdigest()
-                    if hash in processed_hashes:
+                    _hash = hashlib.sha256(
+                        file
+                    ).hexdigest()
+                    if _hash in processed_hashes:
                         attachments_to_delete.append(attachment)
                     else:
-                        processed_hashes.add(hash)
+                        processed_hashes.add(_hash)
         if attachments_to_delete:
             messages_to_delete.append(message)
 
