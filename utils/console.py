@@ -34,6 +34,7 @@ class ConsoleUtils:
         """
         if platform.system() == 'Windows':
             import ctypes
+
             ctypes.windll.kernel32.SetConsoleTitleW(title)
         else:
             os.system(f'echo -ne "\033]0;{title}\007"')
@@ -68,4 +69,3 @@ class ConsoleUtils:
                 os.remove(os.path.join(directory, file))
             except OSError:
                 print(f'Failed to delete {file}.')
-

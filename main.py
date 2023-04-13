@@ -76,7 +76,7 @@ async def menu():
                 )
             )
 
-            await send_to_channel(channel_id=channel_id)
+            await send_to_channel(channel_id=channel_id, client=client)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Sending Scraped attachments to Channel'
             )
@@ -87,7 +87,7 @@ async def menu():
             webhook_url = input(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Webhook Url: '
             )
-            await send_to_webhook(webhook_url=webhook_url)
+            await send_to_webhook(webhook_url=webhook_url, client=client)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Sending Scraped attachments to Webhook'
             )
@@ -99,7 +99,7 @@ async def menu():
                     f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Category ID: '
                 )
             )
-            await scrape_category(category_id=category_id)
+            await scrape_category(category_id=category_id, client=client)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Scraping Category'
             )
@@ -111,7 +111,7 @@ async def menu():
                     f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Enter Channel ID: '
                 )
             )
-            await purge_duplicates(channel_id=channel_id)
+            await purge_duplicates(channel_id=channel_id, client=client)
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Finished Purging Duplicates'
             )
@@ -136,7 +136,6 @@ async def menu():
             sys.exit()
 
         else:
-
             print(
                 f'{Fore.MAGENTA}[{Fore.RESET}~{Fore.MAGENTA}]{Fore.RESET} Invalid Choice'
             )

@@ -117,11 +117,9 @@ async def purge_duplicates(channel_id: int, client) -> None:
         print(f'{len(messages_to_delete)} messages deleted')
 
 
-async def send_to_webhook(webhook_url: str) -> None:
+async def send_to_webhook(webhook_url: str, client) -> None:
     async with aiohttp.ClientSession() as session:
-        webhook = Webhook.from_url(
-            webhook_url, adapter=AsyncWebhookAdapter(session)
-        )
+        webhook = Webhook.from_url(webhook_url, client=client)
         async with aiofiles.open(
             'data/images.txt', 'r', encoding='UTF-8'
         ) as f:
