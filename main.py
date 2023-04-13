@@ -7,11 +7,11 @@ from colorama import Fore, init
 
 from utils.console import ConsoleUtils
 from utils.scrape import (
-    scrape_channel,
+    purge_duplicates,
     scrape_category,
+    scrape_channel,
     send_to_channel,
     send_to_webhook,
-    purge_duplicates,
 )
 
 console_utils = ConsoleUtils()

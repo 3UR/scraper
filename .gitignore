@@ -5,7 +5,7 @@ token.txt
 *.mp4
 *.png
 *.jpeg
-*.jpeg
+*.jpg
 utils/__pycache__
 data/images
 data/config.json
