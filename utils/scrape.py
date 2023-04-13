@@ -1,6 +1,6 @@
 import asyncio
 import hashlib
-import json
+import orjson
 import os
 import random
 from typing import Set
@@ -10,16 +10,15 @@ import aiohttp
 from colorama import Fore
 from discord import File, Webhook, errors
 
-
 async def scrape_channel(client, channel_id, filename):
     ignored_keywords = set()
     with open('config.json', 'r') as f:
-        config = json.load(f)
-        ignored_keywords.update(config.get('ignored', []))
+        config = orjson.loads(f.read())
+        ignored_keywords = set(config['ignored_keywords'])
 
-    async with aiofiles.open(filename, 'a', encoding='utf-8') as f:
-        channel = await client.fetch_channel(channel_id)
-        async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession() as session:
+        async with aiofiles.open(filename, 'a', encoding='utf-8') as f:
+            channel = await client.fetch_channel(channel_id)
             async for message in channel.history(limit=None):
                 for attachment in message.attachments:
                     url = attachment.url.lower()
