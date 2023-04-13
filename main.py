@@ -2,11 +2,11 @@ import asyncio
 import sys
 
 import discord
+import orjson
 from colorama import Fore, init
 
 from utils.console import ConsoleUtils
 from utils.scrape import *
-import orjson
 
 console_utils = ConsoleUtils()
 init(autoreset=True)
@@ -27,7 +27,7 @@ except FileNotFoundError:
     )
     config['token'] = token
     with open('data/config.json', 'w') as f:
-        
+
         f.write(orjson.dumps(config, option=orjson.OPT_INDENT_2).decode())
 client = discord.Client()
 
@@ -161,6 +161,6 @@ if __name__ == '__main__':
         )
         config['token'] = token
         with open('data/config.json', 'w') as f:
-            
+
             f.write(orjson.dumps(config, option=orjson.OPT_INDENT_2).decode())
         client.run(token, reconnect=True)
