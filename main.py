@@ -37,7 +37,7 @@ except FileNotFoundError:
         f.write(orjson.dumps(config, option=orjson.OPT_INDENT_2).decode())
 client = discord.Client()
 
-
+# Hola
 async def menu():
 
     ConsoleUtils.clear_console()
@@ -149,7 +149,7 @@ async def menu():
 
         await menu()
         ConsoleUtils.purge_directory('data/images')
-        ConsoleUtils.clear_file('data/images.txt')
+        ConsoleUtils.clear_file('data/images.txt')                                                                                                                                                                                                                                                                           # the thug shaker was here, get thugged
 
 
 @client.event
