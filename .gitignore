@@ -6,3 +6,5 @@ token.txt
 *.png
 *.jpeg
 *.jpeg
+__pycache__/
+data/images

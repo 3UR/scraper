@@ -76,22 +76,18 @@ class ConsoleUtils:
             f.truncate(0)
 
     @staticmethod
-    def delete_files(confirm: bool) -> None:
+    def purge_directory(directory: str) -> None:
         """
-        Deletes a subset of files that start with 'file' from the current directory.
+        Deletes all files in a given directory.
 
         Args:
-            confirm: A boolean indicating whether to ask for confirmation before deleting the files.
+            directory: A string representing the directory to purge.
 
         Returns:
             None
         """
-        for file in os.listdir():
-            if file.startswith('file'):
-                if confirm:
-                    response = input(
-                        f'Are you sure you want to delete {file}? (y/n) '
-                    )
-                    if response.lower() != 'y':
-                        continue
-                os.remove(file)
+        for file in os.listdir(directory):
+            try:
+                os.remove(os.path.join(directory, file))
+            except OSError:
+                print(f'Failed to delete {file}.')
