@@ -4,8 +4,8 @@ import platform
 
 class ConsoleUtils:
     """
-    A class that provides console utilities, such as clearing the console, setting the console title,
-    clearing a file, and deleting a subset of files.
+    A class containing static methods for clearing the console, setting the console title,
+    clearing a file, and purging a directory.
     """
 
     @staticmethod
