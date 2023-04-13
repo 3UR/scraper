@@ -6,7 +6,13 @@ import orjson
 from colorama import Fore, init
 
 from utils.console import ConsoleUtils
-from utils.scrape import scrape_channel, scrape_category, send_to_channel, send_to_webhook, purge_duplicates
+from utils.scrape import (
+    scrape_channel,
+    scrape_category,
+    send_to_channel,
+    send_to_webhook,
+    purge_duplicates,
+)
 
 console_utils = ConsoleUtils()
 init(autoreset=True)
